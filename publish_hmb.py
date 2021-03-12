@@ -10,13 +10,13 @@ from emschmb import EmscHmbPublisher, load_hmbcfg
 if __name__ == '__main__':
     argd = argparse.ArgumentParser()
     argd.add_argument('msg', help='filename or txt or json')
-    argd.add_argument('-t', '--type', choices=['file', 'fstr', 'fbin', 'txt', 'json'], default='file')
+    argd.add_argument('-t', '--type', help='choose the type of data to send', choices=['file', 'fstr', 'fbin', 'txt', 'json'], default='file')
     argd.add_argument('--cfg', help='config file for connexion parameters (e.g. url, queue, agency, user, password)')
     argd.add_argument('--check', help='skip hmb sending and activate verbose', action='store_true')
     argd.add_argument('-v', '--verbose', help='verbose mode', action='store_true')
-    argd.add_argument('--url', help='define the hmb url (server ands bus name, http://hmb.server.org/busname)')
-    argd.add_argument('--queue')
-    argd.add_argument('--agency')
+    argd.add_argument('--url', help='define the hmb url (server and bus name, http://hmb.server.org/busname)')
+    argd.add_argument('--queue', help='define the queue to send the message')
+    argd.add_argument('--agency', help='needed in argument or in the --cfg file')
     argd.add_argument('--user', help='connexion authentication')
     argd.add_argument('--password', help='connexion authentication')
 

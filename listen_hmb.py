@@ -13,7 +13,7 @@ from emschmb import EmscHmbListener, load_hmbcfg
 # BUT it has to be named 'process_message'
 # one example complete
 # from myprocessing import launch_funder as process_message
-from process_feltreport import process_message
+from my_processing import process_message
 
 
 def shellprocess_manager_multithread(queue, maxprocess=3):
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     argd.add_argument('url', help='adresse of the hmb bserver')
     argd.add_argument('--cfg', help='config file for connexion parameters (e.g. queue, user, password)')
     argd.add_argument('--timeout', help='define timeout', type=int, default=60)
-    argd.add_argument('--nlast', help='n last message to get backNumber of messages to backfill', type=int, default=10)
+    argd.add_argument('--nlast', help='n last message to get backNumber of messages to backfill from the server', type=int, default=10)
     argd.add_argument('--queue', help='define the queue to listen')
     argd.add_argument('--user', help='connexion authentication')
     argd.add_argument('--password', help='connexion authentication')
