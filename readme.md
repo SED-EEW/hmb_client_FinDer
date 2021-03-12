@@ -22,7 +22,7 @@ You can choose the parameters you want to set in this config file (e.g. only use
 The HMB publisher is publish_hmb.py. 
 
 ```
-$ python3publish_hmb.py -h
+$ python3 publish_hmb.py -h
 usage: publish_hmb.py [-h] [-t {file,fstr,fbin,txt,json}] [--cfg CFG]
                       [--check] [-v] [--url URL] [--queue QUEUE]
                       [--agency AGENCY] [--user USER] [--password PASSWORD]
@@ -147,4 +147,34 @@ def process_message(msg):
     Returns:
         subprocess.Popen: the running shell process
     """
+```
+
+## Python API
+
+### To send data
+```
+from emschmb import EmscHmbPublisher
+
+agency = 'TOTO'
+url = 'http://cerf/emsc-csem.org/hmbtest
+user = ??
+password = ??
+
+queue = TEST
+
+
+hmb = EmscHmbPublisher(agency, url)
+hmb.authentication(user, password)
+
+msg = 'a filename'
+hmb.send_file(queue, msg)
+
+msg = 'a python string'
+hmb.send_str(queue, msg, compress=True, encoding='utf-8')
+
+msg = 'python bytes
+hmb.send_bin(queue, msg, compress=True)
+
+msg = python object like {"msg": "send pure python dict", "value": 1, "list": [1, "deux", 3.0]}
+hmb.send(queue, msg)
 ```
