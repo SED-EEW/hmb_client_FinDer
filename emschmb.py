@@ -3,7 +3,7 @@ from zlib import compress, decompress
 import datetime
 
 
-from libcsem.hmb import HmbSession
+from hmbsession import HmbSession
 
 __version__ = "1.0"
 
