@@ -2,7 +2,7 @@
 ## Config file
 
 You can define a config file to set some default parameters and to avoid the usage of passwords in the command line or in scripts.
-It is possible to define 
+It is possible to define:
 - agency : so that the EMSC can identify the contributor of the mesage
 - url : the url of the HMB server with the bus name
 - user : the user for the connexion authentication
@@ -15,8 +15,7 @@ url = http://cerf.emsc-csem.org:80/hmbtest
 user = ??
 password = ??
 ```
-
-Note that these parameters can be passed via command line arguments and the later overwrites the settings in the config file. Moreover if the user is provided and not the password, the publisher or listener will ask the password.
+You can choose the parameters you want to set in this config file (e.g. only user and password, or only the agency, ...). Note that these parameters can be passed via command line arguments for the publisher/listener and the later overwrites the settings in the config file. Moreover if the user parameter is provided and not the password, the password will be ask.
 
 ## HMB Publisher
 
@@ -51,7 +50,7 @@ optional arguments:
 The type of data can be:
 - file : to send a file and keep the information of the filename
 - fstr : to send only the content of the file as a text
-- fbin : same as fstr but send the binary content
+- fbin : same as fstr but send the content as binary
 - txt : send a text given as argument
 - json : send a json
 
