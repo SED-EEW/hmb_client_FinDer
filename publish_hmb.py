@@ -19,6 +19,8 @@ if __name__ == '__main__':
     argd.add_argument('--agency', help='needed in argument or in the --cfg file')
     argd.add_argument('--user', help='connexion authentication')
     argd.add_argument('--password', help='connexion authentication')
+    argd.add_argument('-m', '--metadata', help=' add metadata information to the message. the format is key:val. It can be used multiple times',
+                      action='append', default=[])
 
     args = argd.parse_args()
     dargs = vars(args)
@@ -40,6 +42,20 @@ if __name__ == '__main__':
     if 'agency' not in cfg:
         raise NameError('Agency is needed, set it with --agency or in the --cfg file')
 
+    metadata = {}
+    for items in args.metadata:
+        tokens = items.split(':', 1)
+        if len(tokens) < 2:
+            logging.warning('Skip metadata parsing for %s', items)
+            continue
+        key, val = tokens
+        metadata[key] = val
+
+    if len(metadata) > 0:
+        logging.info('Metadata : %s', metadata)
+    else:
+        metadata = None
+
     agency = cfg['agency']
     url = cfg['url']
     queue = cfg['queue']
@@ -59,24 +75,24 @@ if __name__ == '__main__':
         argd.exit()
 
     if args.type == 'file':
-        hmb.send_file(queue, args.msg)
+        hmb.send_file(queue, args.msg, metadata=metadata)
         logging.info('File \'%s\' sent to queue %s', args.msg, args.queue)
     elif args.type == 'fstr':
         with open(args.msg, 'r', encoding='utf-8') as f:
             msg = f.read()
-        hmb.send_str(queue, msg, compress=True, encoding='utf-8')
+        hmb.send_str(queue, msg, compress=True, encoding='utf-8', metadata=metadata)
         logging.info('Str content of file \'%s\' sent to queue %s', args.msg, args.queue)
     elif args.type == 'fbin':
         with open(args.msg, 'rb') as f:
             msg = f.read()
-        hmb.send_bin(queue, msg, compress=True)
+        hmb.send_bin(queue, msg, compress=True, metadata=metadata)
         logging.info('Binary content of file \'%s\' sent to queue %s', args.msg, args.queue)
     elif args.type == 'txt':
-        hmb.send_str(queue, args.msg, compress=False)
+        hmb.send_str(queue, args.msg, compress=False, metadata=metadata)
         logging.info('Txt sent to queue %s', args.queue)
     elif args.type == 'json':
         msg = json.loads(args.msg)
-        hmb.send(queue, msg)
+        hmb.send(queue, msg, metadata=metadata)
         logging.info('Json sent to queue %s', args.queue)
     else:
         raise NameError('Not implemented')

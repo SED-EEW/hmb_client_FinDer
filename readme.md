@@ -100,8 +100,8 @@ One use example:
 
 ### Customize the message processing
 By default the message processing is defined in the my_processing.py file and the function to edit is the process_message.
-This function must return a subprocess.Popen object that will be launch by the listener.
-Note that for now, it's not possible to catch the outputs (sdtout and stderr) of the shell process.
+This function is launched in another thread and its return is not taking into account.
+Note that to launch a shell process in the function, the subprocess.Popen is a good option.
 
 ```
 def process_message(msg):
@@ -144,8 +144,6 @@ def process_message(msg):
             }
         }
 
-    Returns:
-        subprocess.Popen: the running shell process
     """
 ```
 
@@ -162,19 +160,27 @@ password = ??
 
 queue = TEST
 
+# Morever it could be usefull to attach metadata to the message
+# For instance if the user wants to send a file, and wants make some information directly accessible like event identifier.
+# The metadata can be None or a python dictionary... The idea is to choose few parameters... only if needed
+# For instance
+
+metadata = {
+  'evid': EMSC_EVENT_IDENTIFIER
+}
 
 hmb = EmscHmbPublisher(agency, url)
 hmb.authentication(user, password)
 
 msg = 'a filename'
-hmb.send_file(queue, msg)
+hmb.send_file(queue, msg, metadata=metadata)
 
 msg = 'a python string'
-hmb.send_str(queue, msg, compress=True, encoding='utf-8')
+hmb.send_str(queue, msg, compress=True, encoding='utf-8', metadata=metadata)
 
 msg = 'python bytes
-hmb.send_bin(queue, msg, compress=True)
+hmb.send_bin(queue, msg, compress=True, metadata=None)
 
 msg = python object like {"msg": "send pure python dict", "value": 1, "list": [1, "deux", 3.0]}
-hmb.send(queue, msg)
+hmb.send(queue, msg)  # by default metadata = None
 ```

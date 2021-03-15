@@ -1,6 +1,8 @@
 import json
-from subprocess import Popen
+from subprocess import Popen, PIPE
 import logging
+
+# from emschmb import EmscHmbPublisher, load_hmbcfg
 
 
 def process_message(msg):
@@ -42,9 +44,6 @@ def process_message(msg):
                 'eqtxt': 'M4.5 in GREECE\n2021/03/11 14:19:40 UTC'
             }
         }
-
-    Returns:
-        subprocess.Popen: the running shell process
     """
     logging.info('begin msg')
 
@@ -80,5 +79,19 @@ def process_message(msg):
     # shell command
     # here we juste do nothing for 10 seconds with the shell 'sleep' command
     shellcmd = ['sleep', '10']
-    p = Popen(shellcmd)
-    return p
+    p = Popen(shellcmd, stderr=PIPE, stdout=PIPE)
+    stdout, stderr = p.communicate()
+
+    """
+    # note that it would be usefull to add metadata information
+    # to associate the result with the corresponding EMSC event
+
+    metadata = {
+        'evid': evid
+    }
+
+    # Publish to result to EMSC HMB server
+    hmb = EmscHmbPublisher(agency, url)
+    hmb.authentication(user, password)
+    hmb.send_file(queue, args.msg, metadata=metadata)
+    """

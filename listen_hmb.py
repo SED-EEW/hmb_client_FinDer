@@ -16,22 +16,36 @@ from emschmb import EmscHmbListener, load_hmbcfg
 from my_processing import process_message
 
 
+def _process_wrapper(p, msg, tag):
+    try:
+        tick = time.time()
+        p(msg)
+        logging.info('%s ended in %.1f s', tag, time.time()-tick)
+    except Exception as e:
+        logging.exception("Unexpected exception during message processing: %s", str(e))
+
+
 def shellprocess_manager_multithread(queue, maxprocess=3):
+    local_pid = 1
     running_processes = []
     while True:
 
-        check_running_processes = [p for p in running_processes if p.poll() is None]
+        check_running_processes = [p for p in running_processes if p.is_alive() is True]
 
-        if len(check_running_processes) > maxprocess:
+        if len(check_running_processes) >= maxprocess:
             logging.debug('- Queue full, loop : %s', running_processes)
             time.sleep(1)
             continue
 
         msg = queue.get()
         try:
-            p = process_message(msg)
+            tag = 'Process_{0}'.format(local_pid)
+            p = Process(name=tag, target=_process_wrapper, args=(process_message, msg, tag))
+            p.start()
 
-            logging.debug('- Launch shell process : %s', p)
+            local_pid += 1
+
+            logging.debug('- Launch shell process : %s -> %s', tag, p)
             check_running_processes.append(p)
         except Exception as e:
             logging.exception('Unexpected exception : %s', str(e))
@@ -45,9 +59,8 @@ def shellprocess_manager_singlethread(queue):
         msg = queue.get()
         tick = time.time()
         try:
-            p = process_message(msg)
-            p.wait()
-            logging.info('End process in %.1f s with return code %d', time.time()-tick, p.returncode)
+            process_message(msg)
+            logging.info('End process in %.1f s', time.time()-tick)
         except Exception as e:
             logging.exception('Unexpected exception : %s', str(e))
 
@@ -69,6 +82,7 @@ if __name__ == '__main__':
     argd.add_argument('--queue', help='define the queue to listen')
     argd.add_argument('--user', help='connexion authentication')
     argd.add_argument('--password', help='connexion authentication')
+    argd.add_argument('--nthreads', help='number of concurrent running threads', type=int, default=3)
     argd.add_argument('--singlethread', help='force single thread running (useful for debugging)', action='store_true')
     argd.add_argument('-v', '--verbose', action='store_true')
 
@@ -119,6 +133,6 @@ if __name__ == '__main__':
     if args.singlethread:
         shellprocess_manager_singlethread(process_queue)
     else:
-        shellprocess_manager_multithread(process_queue)
+        shellprocess_manager_multithread(process_queue, maxprocess=args.nthreads)
 
     hmbthread.join()
