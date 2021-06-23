@@ -301,7 +301,7 @@ class EmscHmbListener(object):
         """
         self._url = url
         self._heartbeat = heartbeat
-        self._auth = None
+        self._auth = None, None
         self.queue(*queue, nlast=nlast)
 
     def authentication(self, user, password):
