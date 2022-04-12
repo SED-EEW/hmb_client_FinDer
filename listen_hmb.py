@@ -68,7 +68,7 @@ def shellprocess_manager_singlethread(queue):
 def launch_hmb(pqueue, hmbsession):
     def _process_closure(msg):
         logging.info('- hmb msg: %s', msg.keys())
-        process_queue.put(msg)
+        pqueue.put(msg)
 
     hmbsession.listen(_process_closure)
 
@@ -120,8 +120,6 @@ if __name__ == '__main__':
 
     if args.queue is not None:
         queue = args.queue.split(',')
-    else:
-        queue = []
 
     hmb.queue(*queue, nlast=args.nlast)
 
