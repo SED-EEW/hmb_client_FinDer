@@ -12,8 +12,10 @@ from emschmb import EmscHmbListener, load_hmbcfg
 # here you can import the function you want to launch
 # BUT it has to be named 'process_message'
 # one example complete
-# from myprocessing import launch_funder as process_message
-from my_processing import process_message
+# from my_processing import process_message
+
+
+__version__ = '1.0'
 
 
 def _process_wrapper(p, msg, tag):
@@ -90,6 +92,8 @@ if __name__ == '__main__':
     dargs = vars(args)
 
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG if args.verbose else logging.INFO)
+
+    logging.info('Listen HMB (%s)', __version__)
 
     if args.cfg is not None:
         cfg = load_hmbcfg(args.cfg)
