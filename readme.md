@@ -26,6 +26,7 @@ $ python3 publish_hmb.py -h
 usage: publish_hmb.py [-h] [-t {file,fstr,fbin,txt,json}] [--cfg CFG]
                       [--check] [-v] [--url URL] [--queue QUEUE]
                       [--agency AGENCY] [--user USER] [--password PASSWORD]
+                      [-m METADATA]
                       msg
 
 positional arguments:
@@ -44,7 +45,10 @@ optional arguments:
   --queue QUEUE         define the queue to send the message
   --agency AGENCY       needed in argument or in the --cfg file
   --user USER           connexion authentication
-  --password PASSWORD   connexion authenticatio
+  --password PASSWORD   connexion authentication
+  -m METADATA, --metadata METADATA
+                        add metadata information to the message. the format is
+                        key:val. It can be used multiple times
 ```
 
 The type of data can be:
@@ -75,7 +79,7 @@ Since the HMB server works with a heartbeat system and should not be blocked by 
 $ python3 listen_hmb.py -h
 usage: listen_hmb.py [-h] [--cfg CFG] [--timeout TIMEOUT] [--nlast NLAST]
                      [--queue QUEUE] [--user USER] [--password PASSWORD]
-                     [--singlethread] [-v]
+                     [--nthreads NTHREADS] [--singlethread] [-v]
                      url
 
 positional arguments:
@@ -91,12 +95,13 @@ optional arguments:
   --queue QUEUE        define the queue to listen
   --user USER          connexion authentication
   --password PASSWORD  connexion authentication
+  --nthreads NTHREADS  number of concurrent running threads
   --singlethread       force single thread running (useful for debugging)
   -v, --verbose
 ```
 
 One use example:
-    python3 listen_hmb.py http://10.3.179.12/EmscProducts --queue FELTREPORTS_0 --cfg test/emsc_client.cfg -v
+    python3 listen_hmb.py cerf.emsc-csem.org:80/EmscProducts --queue FELTREPORTS_0 --cfg test/emsc_client.cfg -v
 
 ### Customize the message processing
 By default the message processing is defined in the my_processing.py file and the function to edit is the process_message.
@@ -116,34 +121,8 @@ def process_message(msg):
             'author': 'emschmb.py.1.0',
             'agency': 'EMSC',
             'metadata': {},
-            'data': JSON
+            'data': CONTENT
         }
-
-        where the JSON contains the data.
-
-        json.loads(msg['data']) = {
-            'evid': 958332,
-            'feltreport': {
-                'lon': [22.41761, 22.41241],
-                'lat': [39.63461, 39.63714],
-                'intensity': [1, 1],
-                'dt': [554.0, 244.0]
-            }, 
-            'eqinfo': {
-                'evid': 958332,
-                'oritime': '2021-03-11T14:19:40',
-                'lon': 22.06,
-                'lat': 39.77,
-                'magtype': 'mb',
-                'mag': 4.5,
-                'depth': 4.0,
-                'region': 'GREECE',
-                'net34': 'INFO',
-                'score': 95,
-                'eqtxt': 'M4.5 in GREECE\n2021/03/11 14:19:40 UTC'
-            }
-        }
-
     """
 ```
 
