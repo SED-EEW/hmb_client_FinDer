@@ -17,81 +17,13 @@ def process_message(msg):
             'author': 'emschmb.py.1.0',
             'agency': 'EMSC',
             'metadata': {},
-            'data': JSON
-        }
-
-        where the JSON contains the data.
-
-        json.loads(msg['data']) = {
-            'evid': 958332,
-            'feltreport': {
-                'lon': [22.41761, 22.41241],
-                'lat': [39.63461, 39.63714],
-                'intensity': [1, 1],
-                'dt': [554.0, 244.0]
-            }, 
-            'eqinfo': {
-                'evid': 958332,
-                'oritime': '2021-03-11T14:19:40',
-                'lon': 22.06,
-                'lat': 39.77,
-                'magtype': 'mb',
-                'mag': 4.5,
-                'depth': 4.0,
-                'region': 'GREECE',
-                'net34': 'INFO',
-                'score': 95,
-                'eqtxt': 'M4.5 in GREECE\n2021/03/11 14:19:40 UTC'
-            }
+            'data': CONTENT
         }
     """
-    logging.info('begin msg')
-
-    # if you want to see the raw message
-    # logging.info(msg)
-
-    creationtime = msg['creationtime']
-    agency = msg['agency']  # should be EMSC
-    metadata = msg['metadata']  # not used here
-
-    # data is json txt
-    data = json.loads(msg['data'])
-    logging.info(data)
-
-    evid = data['evid']
-
-    # felt report information
-    fdata = data['feltreport']
-    lon = fdata['lon']
-    lat = fdata['lat']
-    intensity = fdata['intensity']
-    dt = fdata['dt']
-
-    # event information
-    eqinfo = data['eqinfo']
-    evlon = eqinfo['lon']
-    evlat = eqinfo['lat']
-    evdepth = eqinfo['depth']
-    evmag = eqinfo['mag']
-
-    logging.info(data)
+    logging.info('begin user processing')
 
     # shell command
     # here we juste do nothing for 10 seconds with the shell 'sleep' command
     shellcmd = ['sleep', '10']
     p = Popen(shellcmd, stderr=PIPE, stdout=PIPE)
     stdout, stderr = p.communicate()
-
-    """
-    # note that it would be usefull to add metadata information
-    # to associate the result with the corresponding EMSC event
-
-    metadata = {
-        'evid': evid
-    }
-
-    # Publish to result to EMSC HMB server
-    hmb = EmscHmbPublisher(agency, url)
-    hmb.authentication(user, password)
-    hmb.send_file(queue, args.msg, metadata=metadata)
-    """
