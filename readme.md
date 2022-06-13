@@ -1,8 +1,17 @@
 
+# How exchange data via HMB?
+
+HMB is a messaging protocol developped by GFZ [(link)](https://geofon.gfz-potsdam.de/software/httpmsgbus/) allowing the exchange of data on the port 80. To easiest the set up, we have developped some utilities in python. Depending if you want to send or to receive data, you have to use, respectively, a the HMB publisher or the HMB listener.
+
+Before establishing the HMB connection, EMSC has to provide an url, a user/password, an agency name and a queue name. These information can be written in the config file or can be provided on the command line parameters.
+
+Finally, the format of the exchanged data have to be well defined.
+
+
 ## Config file
 
 You can define a config file to set some default parameters and to avoid the usage of passwords in the command line or in scripts.
-It is possible to define:
+In this file, it's possible to define:
 - agency : so that the EMSC can identify the contributor of the mesage
 - url : the url of the HMB server with the bus name
 - user : the user for the connexion authentication
@@ -11,7 +20,7 @@ It is possible to define:
 The format of this file (see client.cfg for a template) looks like:
 ```
 agency = ??
-url = http://cerf.emsc-csem.org:80/hmbtest
+url = http://cerf.emsc-csem.org:80/??
 user = ??
 password = ??
 ```
