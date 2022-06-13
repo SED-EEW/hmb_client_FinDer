@@ -8,6 +8,10 @@ Before establishing the HMB connection, EMSC has to provide an url, a user/passw
 Finally, the format of the exchanged data have to be well defined.
 
 
+## Dependencies
+These scripts needs python 3.6+ and libraries requests and pymongo.
+
+
 ## Config file
 
 You can define a config file to set some default parameters and to avoid the usage of passwords in the command line or in scripts.
