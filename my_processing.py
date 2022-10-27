@@ -2,8 +2,6 @@ import json
 from subprocess import Popen, PIPE
 import logging
 
-# from emschmb import EmscHmbPublisher, load_hmbcfg
-
 
 def process_message(msg):
     """The User should modify this function.

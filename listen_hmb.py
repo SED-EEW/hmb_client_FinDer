@@ -15,7 +15,6 @@ from emschmb import EmscHmbListener, load_hmbcfg
 # BUT it has to be named 'process_message'
 # one example complete
 from my_processing import process_message
-from boxer_processing import process_message
 
 
 __version__ = '1.0'
