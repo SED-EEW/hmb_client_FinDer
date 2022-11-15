@@ -124,8 +124,7 @@ if __name__ == '__main__':
         logging.info('Use authentication')
         hmb.authentication(user, password)
 
-    if args.queue is not None:
-        queue = args.queue.split(',')
+    queue = queue.split(',')
 
     hmb.queue(*queue, nlast=args.nlast)
 
