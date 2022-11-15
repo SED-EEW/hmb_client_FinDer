@@ -16,8 +16,7 @@ from emschmb import EmscHmbListener, load_hmbcfg
 # one example complete
 from my_processing import process_message
 
-
-__version__ = '1.0'
+__version__ = '1.01'
 
 
 def _process_wrapper(p, msg, tag):
@@ -74,6 +73,7 @@ def launch_hmb(pqueue, hmbsession):
         logging.info('- hmb msg: %s', msg.keys())
         pqueue.put(msg)
 
+    logging.debug('Begin hmb listener...')
     hmbsession.listen(_process_closure)
 
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     argd = ArgumentParser()
     argd.add_argument('url', help='adresse of the hmb bserver')
     argd.add_argument('--cfg', help='config file for connexion parameters (e.g. queue, user, password)')
-    argd.add_argument('--timeout', help='define timeout', type=int, default=60)
+    argd.add_argument('--timeout', help='define timeout', type=int, default=30)
     argd.add_argument('--nlast', help='n last message to get backNumber of messages to backfill from the server', type=int, default=10)
     argd.add_argument('--queue', help='define the queue to listen')
     argd.add_argument('--user', help='connexion authentication')
@@ -109,6 +109,9 @@ if __name__ == '__main__':
     logging.info('Configs : %s', cfg)
 
     url = args.url
+    if 'queue' not in cfg:
+        argd.error('queue parameter is mandatory in cmd or cfg')
+
     queue = cfg['queue']
     user = cfg.get('user')
     password = cfg.get('password')
