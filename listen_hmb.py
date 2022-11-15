@@ -15,6 +15,7 @@ from emschmb import EmscHmbListener, load_hmbcfg
 # BUT it has to be named 'process_message'
 # one example complete
 from my_processing import process_message
+# from feltreport_processing import process_message
 
 __version__ = '1.01'
 
@@ -28,7 +29,11 @@ def _process_wrapper(p, msg, tag):
         logging.exception("Unexpected exception during message processing: %s", str(e))
 
 
-def shellprocess_manager_multithread(queue, maxprocess=3):
+def shellprocess_manager_multithread(hmb, maxprocess=3):
+    process_queue = Queue()
+    hmbthread = Process(name='hmbthread', target=launch_hmb, args=(process_queue, hmb))
+    hmbthread.start()
+
     local_pid = 1
     running_processes = []
     while True:
@@ -40,7 +45,7 @@ def shellprocess_manager_multithread(queue, maxprocess=3):
             time.sleep(1)
             continue
 
-        msg = queue.get()
+        msg = process_queue.get()
         try:
             tag = 'Process_{0}'.format(local_pid)
             p = Process(name=tag, target=_process_wrapper, args=(process_message, msg, tag))
@@ -54,18 +59,30 @@ def shellprocess_manager_multithread(queue, maxprocess=3):
             logging.exception('Unexpected exception : %s', str(e))
 
         running_processes = check_running_processes
+    hmbthread.join()
 
 
-def shellprocess_manager_singlethread(queue):
+def shellprocess_manager_singlethread(hmb):
+    process_queue = Queue()
+    hmbthread = Process(name='hmbthread', target=launch_hmb, args=(process_queue, hmb))
+    hmbthread.start()
+
     while True:
 
-        msg = queue.get()
+        msg = process_queue.get()
         tick = time.time()
         try:
             process_message(msg)
             logging.info('End process in %.1f s', time.time()-tick)
         except Exception as e:
             logging.exception('Unexpected exception : %s', str(e))
+
+    hmbthread.join()
+
+
+def shellprocess_manager_nothread(hmb):
+    logging.debug('Begin hmb listener...')
+    hmb.listen(process_message)
 
 
 def launch_hmb(pqueue, hmbsession):
@@ -88,6 +105,7 @@ if __name__ == '__main__':
     argd.add_argument('--password', help='connexion authentication')
     argd.add_argument('--nthreads', help='number of concurrent running threads', type=int, default=3)
     argd.add_argument('--singlethread', help='force single thread running (useful for debugging)', action='store_true')
+    argd.add_argument('--nothread', help='force no threading (useful for debugging)', action='store_true')
     argd.add_argument('-v', '--verbose', action='store_true')
 
     args = argd.parse_args()
@@ -131,14 +149,12 @@ if __name__ == '__main__':
 
     hmb.queue(*queue, nlast=args.nlast)
 
-    process_queue = Queue()
-
-    hmbthread = Process(name='hmbthread', target=launch_hmb, args=(process_queue, hmb))
-    hmbthread.start()
-
-    if args.singlethread:
-        shellprocess_manager_singlethread(process_queue)
+    if args.nothread:
+        logging.info('No thread processing')
+        shellprocess_manager_nothread(hmb)
+    elif args.singlethread:
+        logging.info('Single thread processing')
+        shellprocess_manager_singlethread(hmb)
     else:
-        shellprocess_manager_multithread(process_queue, maxprocess=args.nthreads)
-
-    hmbthread.join()
+        logging.info('Multi threads processing (%d process(es))', args.nthreads)
+        shellprocess_manager_multithread(hmb, maxprocess=args.nthreads)
