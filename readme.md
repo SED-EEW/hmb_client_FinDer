@@ -40,10 +40,10 @@ usage: publish_hmb.py [-h] [-t {file,fstr,fbin,txt,json}] [--cfg CFG]
                       [--check] [-v] [--url URL] [--queue QUEUE]
                       [--agency AGENCY] [--user USER] [--password PASSWORD]
                       [-m METADATA]
-                      msg
+                      [msg]
 
 positional arguments:
-  msg                   filename or txt or json
+  msg                   filename or txt or json (read stdin if empty)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -92,7 +92,7 @@ Since the HMB server works with a heartbeat system and should not be blocked by 
 $ python3 listen_hmb.py -h
 usage: listen_hmb.py [-h] [--cfg CFG] [--timeout TIMEOUT] [--nlast NLAST]
                      [--queue QUEUE] [--user USER] [--password PASSWORD]
-                     [--nthreads NTHREADS] [--singlethread] [-v]
+                     [--nthreads NTHREADS] [--singlethread] [--nothread] [-v]
                      url
 
 positional arguments:
@@ -110,6 +110,7 @@ optional arguments:
   --password PASSWORD  connexion authentication
   --nthreads NTHREADS  number of concurrent running threads
   --singlethread       force single thread running (useful for debugging)
+  --nothread           force no threading (useful for debugging)
   -v, --verbose
 ```
 

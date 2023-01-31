@@ -8,9 +8,21 @@ import json
 from emschmb import EmscHmbPublisher, load_hmbcfg
 
 
+def readstdin():
+    while True:
+        try:
+            line = sys.stdin.readline()
+        except KeyboardInterrupt:
+            break
+        if not line:
+            break
+
+        yield line
+
+
 if __name__ == '__main__':
     argd = argparse.ArgumentParser()
-    argd.add_argument('msg', help='filename or txt or json')
+    argd.add_argument('msg', help='filename or txt or json (read stdin if empty)', nargs='?')
     argd.add_argument('-t', '--type', help='choose the type of data to send', choices=['file', 'fstr', 'fbin', 'txt', 'json'], default='file')
     argd.add_argument('--cfg', help='config file for connexion parameters (e.g. url, queue, agency, user, password)')
     argd.add_argument('--check', help='skip hmb sending and activate verbose', action='store_true')
@@ -25,6 +37,8 @@ if __name__ == '__main__':
 
     args = argd.parse_args()
     dargs = vars(args)
+
+    argsmsg = args.msg or ''.join(readstdin())
 
     if args.verbose or args.check:
         logging.basicConfig(stream=sys.stderr, level=logging.INFO)
@@ -76,23 +90,23 @@ if __name__ == '__main__':
         argd.exit()
 
     if args.type == 'file':
-        hmb.send_file(queue, args.msg, metadata=metadata)
-        logging.info('File \'%s\' sent to queue %s', args.msg, args.queue)
+        hmb.send_file(queue, argsmsg, metadata=metadata)
+        logging.info('File \'%s\' sent to queue %s', argsmsg, args.queue)
     elif args.type == 'fstr':
-        with open(args.msg, 'r', encoding='utf-8') as f:
+        with open(argsmsg, 'r', encoding='utf-8') as f:
             msg = f.read()
         hmb.send_str(queue, msg, compress=True, encoding='utf-8', metadata=metadata)
-        logging.info('Str content of file \'%s\' sent to queue %s', args.msg, args.queue)
+        logging.info('Str content of file \'%s\' sent to queue %s', argsmsg, args.queue)
     elif args.type == 'fbin':
-        with open(args.msg, 'rb') as f:
+        with open(argsmsg, 'rb') as f:
             msg = f.read()
         hmb.send_bin(queue, msg, compress=True, metadata=metadata)
-        logging.info('Binary content of file \'%s\' sent to queue %s', args.msg, args.queue)
+        logging.info('Binary content of file \'%s\' sent to queue %s', argsmsg, args.queue)
     elif args.type == 'txt':
-        hmb.send_str(queue, args.msg, compress=False, metadata=metadata)
+        hmb.send_str(queue, argsmsg, compress=False, metadata=metadata)
         logging.info('Txt sent to queue %s', args.queue)
     elif args.type == 'json':
-        msg = json.loads(args.msg)
+        msg = json.loads(argsmsg)
         hmb.send(queue, msg, metadata=metadata)
         logging.info('Json sent to queue %s', args.queue)
     else:
