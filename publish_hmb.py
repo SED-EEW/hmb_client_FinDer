@@ -23,7 +23,7 @@ def readstdin():
 if __name__ == '__main__':
     argd = argparse.ArgumentParser()
     argd.add_argument('msg', help='filename or txt or json (read stdin if empty)', nargs='?')
-    argd.add_argument('-t', '--type', help='choose the type of data to send', choices=['file', 'fstr', 'fbin', 'txt', 'json'], default='file')
+    argd.add_argument('-t', '--type', help='choose the type of data to send', choices=['file', 'fstr', 'fbin', 'txt', 'ztxt', 'json'], default='file')
     argd.add_argument('--cfg', help='config file for connexion parameters (e.g. url, queue, agency, user, password)')
     argd.add_argument('--check', help='skip hmb sending and activate verbose', action='store_true')
     argd.add_argument('-v', '--verbose', help='verbose mode', action='store_true')
@@ -105,6 +105,9 @@ if __name__ == '__main__':
     elif args.type == 'txt':
         hmb.send_str(queue, argsmsg, compress=False, metadata=metadata)
         logging.info('Txt sent to queue %s', args.queue)
+    elif args.type == 'ztxt':
+        hmb.send_str(queue, argsmsg, compress=True, metadata=metadata)
+        logging.info('Compressed Txt sent to queue %s', args.queue)
     elif args.type == 'json':
         msg = json.loads(argsmsg)
         hmb.send(queue, msg, metadata=metadata)
