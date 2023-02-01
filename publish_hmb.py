@@ -52,7 +52,10 @@ if __name__ == '__main__':
         if dargs[k] is not None:
             cfg[k] = dargs[k]
 
-    logging.info('Configs : %s', cfg)
+    cfgnopassword = cfg.copy()
+    if 'password' in cfg:
+        cfgnopassword['password'] = '****'
+    logging.info('Configs : %s', cfgnopassword)
 
     if 'agency' not in cfg:
         raise NameError('Agency is needed, set it with --agency or in the --cfg file')
@@ -96,18 +99,18 @@ if __name__ == '__main__':
         with open(argsmsg, 'r', encoding='utf-8') as f:
             msg = f.read()
         hmb.send_str(queue, msg, compress=True, encoding='utf-8', metadata=metadata)
-        logging.info('Str content of file \'%s\' sent to queue %s', argsmsg, args.queue)
+        logging.info('Str content of file \'%s\' (size %d) sent to queue %s', argsmsg, len(argsmsg), args.queue)
     elif args.type == 'fbin':
         with open(argsmsg, 'rb') as f:
             msg = f.read()
         hmb.send_bin(queue, msg, compress=True, metadata=metadata)
-        logging.info('Binary content of file \'%s\' sent to queue %s', argsmsg, args.queue)
+        logging.info('Binary content of file \'%s\' (size %d) sent to queue %s', argsmsg, len(argsmsg), args.queue)
     elif args.type == 'txt':
         hmb.send_str(queue, argsmsg, compress=False, metadata=metadata)
-        logging.info('Txt sent to queue %s', args.queue)
+        logging.info('Txt (size %d) sent to queue %s', len(argsmsg), args.queue)
     elif args.type == 'ztxt':
         hmb.send_str(queue, argsmsg, compress=True, metadata=metadata)
-        logging.info('Compressed Txt sent to queue %s', args.queue)
+        logging.info('Compressed Txt (size %d) sent to queue %s', len(argsmsg), args.queue)
     elif args.type == 'json':
         msg = json.loads(argsmsg)
         hmb.send(queue, msg, metadata=metadata)

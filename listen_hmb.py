@@ -124,7 +124,11 @@ if __name__ == '__main__':
         if dargs[k] is not None:
             cfg[k] = dargs[k]
 
-    logging.info('Configs : %s', cfg)
+    cfgnopassword = cfg.copy()
+    if 'password' in cfg:
+        cfgnopassword['password'] = '****'
+
+    logging.info('Configs : %s', cfgnopassword)
 
     url = args.url
     if 'queue' not in cfg:
