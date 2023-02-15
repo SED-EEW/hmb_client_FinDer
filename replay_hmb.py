@@ -24,7 +24,7 @@ def display(msg):
 
 if __name__ == '__main__':
     argd = ArgumentParser()
-    argd.add_argument('filtertxt', help='select messages with filtertxt query (json format, mongodb syntax)', nargs='?')
+    argd.add_argument('query', help='select messages with query (json format, mongodb syntax)', nargs='?')
     argd.add_argument('--check', help='only display results and skip process_message', action='store_true')
     argd.add_argument('--url', help='adresse of the hmb bserver')
     argd.add_argument('--cfg', help='config file for connexion parameters (e.g. queue, user, password)')
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG if args.verbose else logging.INFO)
     logging.info('Replay HMB message (%s)', __version__)
 
-    filter = json.loads(args.filtertxt or ''.join(readstdin()))
+    filter = json.loads(args.query or ''.join(readstdin()))
     logging.info('Filtering query: %s', filter)
 
     if args.cfg is not None:
