@@ -17,9 +17,15 @@ from my_processing import process_message
 __version__ = '1.0'
 
 
+def display(msg):
+    msg.pop('data', None)
+    print('message:', msg)
+
+
 if __name__ == '__main__':
     argd = ArgumentParser()
-    argd.add_argument('filtertxt', help='select messages with filtertxt constraints (mongodb format)', nargs='?')
+    argd.add_argument('filtertxt', help='select messages with filtertxt query (json format, mongodb syntax)', nargs='?')
+    argd.add_argument('--check', help='only display results and skip process_message', action='store_true')
     argd.add_argument('--url', help='adresse of the hmb bserver')
     argd.add_argument('--cfg', help='config file for connexion parameters (e.g. queue, user, password)')
     argd.add_argument('--queue', help='define the queue to listen')
@@ -33,7 +39,8 @@ if __name__ == '__main__':
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG if args.verbose else logging.INFO)
     logging.info('Replay HMB message (%s)', __version__)
 
-    filtertxt = json.loads(args.filtertxt or ''.join(readstdin()))
+    filter = json.loads(args.filtertxt or ''.join(readstdin()))
+    logging.info('Filtering query: %s', filter)
 
     if args.cfg is not None:
         cfg = load_hmbcfg(args.cfg)
@@ -70,4 +77,4 @@ if __name__ == '__main__':
         logging.info('Use authentication')
         hmb.authentication(user, password)
 
-    hmb.get(process_message, queue, filtertxt)
+    hmb.get(display if args.check else process_message, queue, filter)
