@@ -114,8 +114,9 @@ optional arguments:
   -v, --verbose
 ```
 
-One use example:
-    python3 listen_hmb.py cerf.emsc-csem.org:80/EmscProducts --queue FELTREPORTS_0 --cfg test/emsc_client.cfg -v
+One example:
+
+    python3 listen_hmb.py http://cerf.emsc-csem.org:80/EmscProducts --queue FELTREPORTS_0 --cfg test/emsc_client.cfg -v
 
 ### Customize the message processing
 By default the message processing is defined in the my_processing.py file and the function to edit is the process_message.
@@ -139,6 +140,32 @@ def process_message(msg):
         }
     """
 ```
+
+### Replay HMB messages
+The script replay_hmb.py allows to search messages previously published on hmb queue using a filtering query.
+Unless you use the '--check' option, the function process_message is called on each selected message.
+
+```
+$ python3 replay_hmb.py -h
+usage: replay_hmb.py [-h] [--check] [--url URL] [--cfg CFG] [--queue QUEUE] [--user USER] [--password PASSWORD] [-v] [query]
+
+positional arguments:
+  query                select messages with query (json format, mongodb syntax)
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --check              only display results and skip process_message
+  --url URL            adresse of the hmb bserver
+  --cfg CFG            config file for connexion parameters (e.g. queue, user, password)
+  --queue QUEUE        define the queue to listen
+  --user USER          connexion authentication
+  --password PASSWORD  connexion authentication
+  -v, --verbose
+```
+
+One example to select message with the sequence number 8210:
+
+    python3 replay_hmb.py '{"seq": 8210}' --url http://cerf.emsc-csem.org:80/EmscProducts --queue FELTREPORTS_0 --cfg test/emsc_client.cfg -v
 
 ## Python API
 
