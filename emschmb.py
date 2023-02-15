@@ -1,3 +1,4 @@
+import sys
 import os
 from zlib import compress, decompress
 import datetime
@@ -50,6 +51,18 @@ def load_hmbcfg(filename):
             cfg[key.strip()] = val.strip()
 
     return cfg
+
+
+def readstdin():
+    while True:
+        try:
+            line = sys.stdin.readline()
+        except KeyboardInterrupt:
+            break
+        if not line:
+            break
+
+        yield line
 
 
 class EmscHmbPublisher(object):
@@ -336,6 +349,30 @@ class EmscHmbListener(object):
             }
         self._queue = res
         return self
+
+    def get(self, func, queue, filter):
+        """"get message on the queue satisfaying filter conditions
+
+        Args:
+            func (dict -> None): function to run at each message, that take a dict as argument
+            queue (str): queue name
+            filter (dict): filtering conditions mongodb format
+
+        """
+        param = {
+            'heartbeat': self._heartbeat,
+        }
+
+        hmb = HmbSession(
+            self._url, use_bson=True, retry_wait=10,
+            param=param, autocreate_queues=True
+        ).authentication(*self._auth).requests_args(timeout=(6.05, self._heartbeat + 5))
+
+        res = []
+        for m in hmb.get(queue, filter):
+            res.append(func(_receive_msg(m)))
+
+        return res
 
     def listen(self, func, retries=1):
         """begin the listener and run func for each message

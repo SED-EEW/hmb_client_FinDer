@@ -5,19 +5,7 @@ import sys
 import argparse
 import getpass
 import json
-from emschmb import EmscHmbPublisher, load_hmbcfg
-
-
-def readstdin():
-    while True:
-        try:
-            line = sys.stdin.readline()
-        except KeyboardInterrupt:
-            break
-        if not line:
-            break
-
-        yield line
+from emschmb import EmscHmbPublisher, load_hmbcfg, readstdin
 
 
 if __name__ == '__main__':

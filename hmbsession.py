@@ -172,7 +172,7 @@ class HmbSession(object):
                     # suppose that seq is alway a number!
                     seqnext = int(queue['seq'])
                     if qname in self.param['queue']:
-                        if seqnext > self.param['queue'][qname].get('seq', None):
+                        if seqnext > self.param['queue'][qname].get('seq', 0):
                             self.param['queue'][qname]['seq'] = seqnext
 
             self._logger.info("New HMB session : url=%s, sid=%s, cid=%s",
