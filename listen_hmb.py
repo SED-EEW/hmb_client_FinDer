@@ -13,9 +13,8 @@ from emschmb import EmscHmbListener, load_hmbcfg
 
 # here you can import the function you want to launch
 # BUT it has to be named 'process_message'
-# one example complete
+# for example
 from my_processing import process_message
-# from feltreport_processing import process_message
 
 __version__ = '1.01'
 
@@ -24,7 +23,7 @@ def _process_wrapper(p, msg, tag):
     try:
         tick = time.time()
         p(msg)
-        logging.info('%s ended in %.1f s', tag, time.time()-tick)
+        logging.info('%s ended in %.1f s', tag, time.time() - tick)
     except Exception as e:
         logging.exception("Unexpected exception during message processing: %s", str(e))
 
@@ -73,7 +72,7 @@ def shellprocess_manager_singlethread(hmb):
         tick = time.time()
         try:
             process_message(msg)
-            logging.info('End process in %.1f s', time.time()-tick)
+            logging.info('End process in %.1f s', time.time() - tick)
         except Exception as e:
             logging.exception('Unexpected exception : %s', str(e))
 

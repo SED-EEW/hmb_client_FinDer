@@ -33,13 +33,12 @@ def generic_hmb_display(msg):
         elif isinstance(v, list):
             print('{0:10} : {1}'.format(k, '[]'))
             for vv in v:
-                print(' '*10, str(vv)[:70])
+                print(' ' * 10, str(vv)[:70])
         else:
             print('{0:10} : {1}'.format(k, str(v)[:70]))
     print()
 
 
-# TODO: requests_args, logging_verbose
 class HmbSession(object):
     def __init__(self, url, param=None, retry_wait=1, use_bson=False,
                  autocreate_queues=False):
@@ -249,7 +248,7 @@ class HmbSession(object):
         self.send(msg, retries)
 
     def _wrap_retry(self, func, args, retries):
-        for i in range(retries+1):
+        for i in range(retries + 1):
             try:
                 if self._sid is None:
                     self._open()
@@ -258,7 +257,7 @@ class HmbSession(object):
                 self._close()
                 # self._logger.exception('Exception %S with %s, args: %s', str(e), func.__name__, str(args))
                 self._logger.error('Exception %s with %s, args: %s', str(e), func.__name__, str(args))
-                self._logger.error('HMB retry %s (retries %d/%d)', func.__name__,i, retries)
+                self._logger.error('HMB retry %s (retries %d/%d)', func.__name__, i, retries)
                 time.sleep(self.retry_wait)
 
         self._logger.error("Max retry: HMB connexion lost")
@@ -396,13 +395,13 @@ if __name__ == "__main__":
     param = {}
     if args.action == 'listen':
         param = {
-            'heartbeat': args.timeout/2,
+            'heartbeat': args.timeout / 2,
             'queue': {}
         }
 
         for q in queue:
             param['queue'][q] = {
-                'seq': -args.backfill-1,
+                'seq': -args.backfill - 1,
                 'keep': True
             }
 
