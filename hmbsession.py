@@ -350,6 +350,22 @@ class HmbSession(object):
 
         return messages
 
+    def get(self, queue, filter):
+        self.param['queue'] = {queue: {'seq': 0, 'filter': filter}}
+        self._open()
+        url = self.url + '/recv/' + self._sid
+        r = self.get_httpsession().get(url, **self.requests_kwargs)
+
+        _check_requests_status_raise(r)
+
+        if self._use_json:
+            msgdict = r.json()  # can be multiple messages
+            messages = [msgdict[str(i)] for i in range(len(msgdict))]
+        else:  # bson
+            messages = bson.decode_all(r.content)
+
+        return messages
+
     def listen(self, callback=generic_hmb_display, delay=0.1, retries=1, keep_heartbeat=False):
         while True:
             try:
