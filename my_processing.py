@@ -1,6 +1,7 @@
-import json
 from subprocess import Popen, PIPE
 import logging
+
+logger = logging.getLogger(__name__)
 
 
 def process_message(msg):
@@ -18,7 +19,7 @@ def process_message(msg):
             'data': CONTENT
         }
     """
-    logging.info('begin user processing')
+    logger.info('begin user processing, metadata %s', msg.get('metadata'))
 
     # shell command
     # here we juste do nothing for 10 seconds with the shell 'sleep' command
