@@ -36,7 +36,9 @@ if __name__ == '__main__':
     args = argd.parse_args()
     dargs = vars(args)
 
-    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG if args.verbose else logging.INFO)
+    logging.basicConfig(
+        stream=sys.stderr, level=logging.DEBUG if args.verbose else logging.INFO,
+        format='%(asctime)s:%(levelname)s:%(name)s:%(message)s')
     logging.info('Replay HMB message (%s)', __version__)
 
     filter = json.loads(args.query or ''.join(readstdin()))

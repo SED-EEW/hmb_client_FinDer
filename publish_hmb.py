@@ -29,7 +29,8 @@ if __name__ == '__main__':
     argsmsg = args.msg or ''.join(readstdin())
 
     if args.verbose or args.check:
-        logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+        logging.basicConfig(stream=sys.stderr, level=logging.INFO,
+                            format='%(asctime)s:%(levelname)s:%(name)s:%(message)s')
 
     if args.cfg is not None:
         cfg = load_hmbcfg(args.cfg)
