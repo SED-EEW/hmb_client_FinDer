@@ -248,7 +248,7 @@ def _decode_zstr(msg):
     return _decompress_txt(msg.get('content', b''), encoding=msg.get('encoding', 'utf-8'))
 
 
-def decode_emsc_msg(rawmsg):
+def _receive_msg(rawmsg):
     if rawmsg['type'] != 'EMSC_MSG' or 'data' not in rawmsg:
         return {}
 
@@ -370,7 +370,7 @@ class EmscHmbListener(object):
 
         res = []
         for m in hmb.get(queue, filter):
-            res.append(func(decode_emsc_msg(m)))
+            res.append(func(_receive_msg(m)))
 
         return res
 
@@ -395,7 +395,7 @@ class EmscHmbListener(object):
         ).authentication(*self._auth).requests_args(timeout=(6.05, heartbeat + 5))
 
         def func_closure(msg):
-            return func(decode_emsc_msg(msg))
+            return func(_receive_msg(msg))
 
         hmb.listen(func_closure, retries=retries, keep_heartbeat=False)
 

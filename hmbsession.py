@@ -33,12 +33,13 @@ def generic_hmb_display(msg):
         elif isinstance(v, list):
             print('{0:10} : {1}'.format(k, '[]'))
             for vv in v:
-                print(' ' * 10, str(vv)[:70])
+                print(' '*10, str(vv)[:70])
         else:
             print('{0:10} : {1}'.format(k, str(v)[:70]))
     print()
 
 
+# TODO: requests_args, logging_verbose
 class HmbSession(object):
     def __init__(self, url, param=None, retry_wait=1, use_bson=False,
                  autocreate_queues=False):
@@ -171,7 +172,7 @@ class HmbSession(object):
                     # suppose that seq is alway a number!
                     seqnext = int(queue['seq'])
                     if qname in self.param['queue']:
-                        if seqnext > self.param['queue'][qname].get('seq', 0):
+                        if seqnext > self.param['queue'][qname].get('seq', None):
                             self.param['queue'][qname]['seq'] = seqnext
 
             self._logger.info("New HMB session : url=%s, sid=%s, cid=%s",
@@ -248,7 +249,7 @@ class HmbSession(object):
         self.send(msg, retries)
 
     def _wrap_retry(self, func, args, retries):
-        for i in range(retries + 1):
+        for i in range(retries+1):
             try:
                 if self._sid is None:
                     self._open()
@@ -257,7 +258,7 @@ class HmbSession(object):
                 self._close()
                 # self._logger.exception('Exception %S with %s, args: %s', str(e), func.__name__, str(args))
                 self._logger.error('Exception %s with %s, args: %s', str(e), func.__name__, str(args))
-                self._logger.error('HMB retry %s (retries %d/%d)', func.__name__, i, retries)
+                self._logger.error('HMB retry %s (retries %d/%d)', func.__name__,i, retries)
                 time.sleep(self.retry_wait)
 
         self._logger.error("Max retry: HMB connexion lost")
@@ -350,22 +351,6 @@ class HmbSession(object):
 
         return messages
 
-    def get(self, queue, filter):
-        self.param['queue'] = {queue: {'seq': 0, 'filter': filter}}
-        self._open()
-        url = self.url + '/recv/' + self._sid
-        r = self.get_httpsession().get(url, **self.requests_kwargs)
-
-        _check_requests_status_raise(r)
-
-        if self._use_json:
-            msgdict = r.json()  # can be multiple messages
-            messages = [msgdict[str(i)] for i in range(len(msgdict))]
-        else:  # bson
-            messages = bson.decode_all(r.content)
-
-        return messages
-
     def listen(self, callback=generic_hmb_display, delay=0.1, retries=1, keep_heartbeat=False):
         while True:
             try:
@@ -411,13 +396,13 @@ if __name__ == "__main__":
     param = {}
     if args.action == 'listen':
         param = {
-            'heartbeat': args.timeout / 2,
+            'heartbeat': args.timeout/2,
             'queue': {}
         }
 
         for q in queue:
             param['queue'][q] = {
-                'seq': -args.backfill - 1,
+                'seq': -args.backfill-1,
                 'keep': True
             }
 

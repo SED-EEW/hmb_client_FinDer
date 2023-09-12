@@ -13,7 +13,7 @@ from emschmb import EmscHmbListener, load_hmbcfg
 
 # here you can import the function you want to launch
 # BUT it has to be named 'process_message'
-# for example
+# for example 
 from my_processing import process_message
 
 __version__ = '1.01'

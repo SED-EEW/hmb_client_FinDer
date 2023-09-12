@@ -1,21 +1,13 @@
 
-# How exchange data via HMB?
-
-HMB is a messaging protocol developped by GFZ [(link)](https://geofon.gfz-potsdam.de/software/httpmsgbus/) allowing the exchange of data on the port 80. To easiest the set up, we have developped some utilities in python. Depending if you want to send or to receive data, you have to use, respectively, a the HMB publisher or the HMB listener.
-
-**MANDATORY. Before establishing the HMB connection, EMSC has to provide an url, a user/password, an agency name and a queue name.** These information can be written in the config file or can be provided on the command line parameters.
-
-Finally, the format of the exchanged data have to be well defined.
-
-
-## Dependencies
-These scripts needs python 3.6+ and libraries requests and pymongo.
-
+Run at SED:
+```bash
+ python3 ./listen_proc_send_hmb.py http://cerf.emsc-csem.org/EmscProducts --singlethread --queue FELTREPORTS_0 --cfg ethz.cfg -v
+```
 
 ## Config file
 
 You can define a config file to set some default parameters and to avoid the usage of passwords in the command line or in scripts.
-In this file, it's possible to define:
+It is possible to define:
 - agency : so that the EMSC can identify the contributor of the mesage
 - url : the url of the HMB server with the bus name
 - user : the user for the connexion authentication
@@ -24,7 +16,7 @@ In this file, it's possible to define:
 The format of this file (see client.cfg for a template) looks like:
 ```
 agency = ??
-url = http://cerf.emsc-csem.org:80/??
+url = http://cerf.emsc-csem.org:80/hmbtest
 user = ??
 password = ??
 ```
@@ -39,11 +31,10 @@ $ python3 publish_hmb.py -h
 usage: publish_hmb.py [-h] [-t {file,fstr,fbin,txt,json}] [--cfg CFG]
                       [--check] [-v] [--url URL] [--queue QUEUE]
                       [--agency AGENCY] [--user USER] [--password PASSWORD]
-                      [-m METADATA]
-                      [msg]
+                      msg
 
 positional arguments:
-  msg                   filename or txt or json (read stdin if empty)
+  msg                   filename or txt or json
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -58,10 +49,7 @@ optional arguments:
   --queue QUEUE         define the queue to send the message
   --agency AGENCY       needed in argument or in the --cfg file
   --user USER           connexion authentication
-  --password PASSWORD   connexion authentication
-  -m METADATA, --metadata METADATA
-                        add metadata information to the message. the format is
-                        key:val. It can be used multiple times
+  --password PASSWORD   connexion authenticatio
 ```
 
 The type of data can be:
@@ -92,7 +80,7 @@ Since the HMB server works with a heartbeat system and should not be blocked by 
 $ python3 listen_hmb.py -h
 usage: listen_hmb.py [-h] [--cfg CFG] [--timeout TIMEOUT] [--nlast NLAST]
                      [--queue QUEUE] [--user USER] [--password PASSWORD]
-                     [--nthreads NTHREADS] [--singlethread] [--nothread] [-v]
+                     [--singlethread] [-v]
                      url
 
 positional arguments:
@@ -108,15 +96,12 @@ optional arguments:
   --queue QUEUE        define the queue to listen
   --user USER          connexion authentication
   --password PASSWORD  connexion authentication
-  --nthreads NTHREADS  number of concurrent running threads
   --singlethread       force single thread running (useful for debugging)
-  --nothread           force no threading (useful for debugging)
   -v, --verbose
 ```
 
-One example:
-
-    python3 listen_hmb.py http://cerf.emsc-csem.org:80/EmscProducts --queue FELTREPORTS_0 --cfg test/emsc_client.cfg -v
+One use example:
+    python3 listen_hmb.py http://10.3.179.12/EmscProducts --queue FELTREPORTS_0 --cfg test/emsc_client.cfg -v
 
 ### Customize the message processing
 By default the message processing is defined in the my_processing.py file and the function to edit is the process_message.
@@ -136,36 +121,36 @@ def process_message(msg):
             'author': 'emschmb.py.1.0',
             'agency': 'EMSC',
             'metadata': {},
-            'data': CONTENT
+            'data': JSON
         }
+
+        where the JSON contains the data.
+
+        json.loads(msg['data']) = {
+            'evid': 958332,
+            'feltreport': {
+                'lon': [22.41761, 22.41241],
+                'lat': [39.63461, 39.63714],
+                'intensity': [1, 1],
+                'dt': [554.0, 244.0]
+            }, 
+            'eqinfo': {
+                'evid': 958332,
+                'oritime': '2021-03-11T14:19:40',
+                'lon': 22.06,
+                'lat': 39.77,
+                'magtype': 'mb',
+                'mag': 4.5,
+                'depth': 4.0,
+                'region': 'GREECE',
+                'net34': 'INFO',
+                'score': 95,
+                'eqtxt': 'M4.5 in GREECE\n2021/03/11 14:19:40 UTC'
+            }
+        }
+
     """
 ```
-
-### Replay HMB messages
-The script replay_hmb.py allows to search messages previously published on hmb queue using a filtering query.
-Unless you use the '--check' option, the function process_message is called on each selected message.
-
-```
-$ python3 replay_hmb.py -h
-usage: replay_hmb.py [-h] [--check] [--url URL] [--cfg CFG] [--queue QUEUE] [--user USER] [--password PASSWORD] [-v] [query]
-
-positional arguments:
-  query                select messages with query (json format, mongodb syntax)
-
-optional arguments:
-  -h, --help           show this help message and exit
-  --check              only display results and skip process_message
-  --url URL            adresse of the hmb bserver
-  --cfg CFG            config file for connexion parameters (e.g. queue, user, password)
-  --queue QUEUE        define the queue to listen
-  --user USER          connexion authentication
-  --password PASSWORD  connexion authentication
-  -v, --verbose
-```
-
-One example to select message with the sequence number 8210:
-
-    python3 replay_hmb.py '{"seq": 8210}' --url http://cerf.emsc-csem.org:80/EmscProducts --queue FELTREPORTS_0 --cfg test/emsc_client.cfg -v
 
 ## Python API
 
